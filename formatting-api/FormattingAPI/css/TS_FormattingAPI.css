@@ -1,0 +1,41 @@
+.SampleNamespace\.FormattingAPI {
+    font-family: 'SegoeUI-Semibold', 'Segoe UI Semibold', 'Segoe UI Regular', 'Segoe UI';
+}
+
+.SampleNamespace\.FormattingAPI .TSFormatting_Container {
+    overflow-x: auto;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlRow {
+    background-color: #FFFFFF;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlHeaderCell {
+    text-align: center;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlCell,
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlHeaderCell {
+    border: 1px solid black;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlInputTextCell {
+    border: 1px solid black;
+    padding: 0px;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlHeaderCell {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlCell_Key {
+    color: #1160B7;
+}
+
+.SampleNamespace\.FormattingAPI .FormattingControlSampleHtmlTable_HtmlCell_Value {
+    color: #1160B7;
+    text-align: center;
+}
