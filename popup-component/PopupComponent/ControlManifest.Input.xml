@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="SampleNamespace" constructor="PopupComponent" version="0.0.1" display-name-key="PopupComponent_Display_Key" description-key="PopupComponent_Desc_Key" control-type="standard">
+    <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
+    <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" /> 
+    <resources>
+      <code path="index.ts" order="1"/>
+      <css path="css/loader.css" order="1" />
+    </resources>
+  </control>
+</manifest>
