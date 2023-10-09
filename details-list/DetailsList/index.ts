@@ -17,7 +17,7 @@ export class DetailsList implements ComponentFramework.ReactControl<IInputs, IOu
     }
 
     public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
-        return React.createElement(Grid, { selectedGroups: ["color", "shape", "location"] });
+        return React.createElement(Grid, { selectedGroups: ["location", "shape", "color"] });
     }
 
     public getOutputs(): IOutputs {

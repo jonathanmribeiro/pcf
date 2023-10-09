@@ -17,7 +17,7 @@ export class Grid extends React.Component<IGridProps, IGridState> {
     constructor(props: {}) {
         super(props);
 
-        const items = createListItems(1000);
+        const items = createListItems(100);
 
         this.state = {
             sortedItems: items,
@@ -45,7 +45,8 @@ export class Grid extends React.Component<IGridProps, IGridState> {
     }
 
     private _buildColumns(items: IExampleItem[]): IColumn[] {
-        const columns = buildColumns(items, false, this._onColumnClick.bind(this));
+        const { selectedGroups } = this.props;
+        const columns = buildColumns(items, false, this._onColumnClick.bind(this), selectedGroups![0], false);
         const thumbnailColumn = columns.filter(column => column.name === 'thumbnail')[0];
 
         thumbnailColumn.name = '';
@@ -56,20 +57,20 @@ export class Grid extends React.Component<IGridProps, IGridState> {
         columns.forEach((column: IColumn) => {
             if (column.name) {
                 column.isCollapsible = column.name === 'description';
+                column.isSorted = selectedGroups![0] ? selectedGroups![0] === column.name : false;
+                column.isSortedDescending = false;
             }
         });
 
         return columns;
     }
 
-    private _buildGroupLevel(groupLevel: number, parent_group: IGroup, parentGroupedItems: IGrouped, sortColumn: string = '', isSortedDescending: boolean = false): any[] {
+    private _buildNestedGroup(groupLevel: number, parent_group: IGroup, parentGroupedItems: IGrouped, sortColumn: string = '', isSortedDescending: boolean = false): any[] {
         const { selectedGroups } = this.props;
         const { columns } = this.state;
 
         const groupKey = selectedGroups![groupLevel];
         const nextGroupLevel = groupLevel + 1;
-
-        console.log(`Building group for level ${groupLevel} and will try to build group for next level ${nextGroupLevel}`);
 
         const mustSortDescending = sortColumn && sortColumn === groupKey ? isSortedDescending : columns.find(column => column.key === groupKey)?.isSortedDescending;
         parentGroupedItems.children = SortAndGroup(parentGroupedItems.children!, groupKey, mustSortDescending);
@@ -81,7 +82,7 @@ export class Grid extends React.Component<IGridProps, IGridState> {
             const child_group: IGroup = { key: child.key, name: child.key, startIndex: startIndex, count: child.size, level: groupLevel, children: [] };
 
             if (selectedGroups![nextGroupLevel]) {
-                child.children = this._buildGroupLevel(nextGroupLevel, child_group, child, sortColumn, isSortedDescending);
+                child.children = this._buildNestedGroup(nextGroupLevel, child_group, child, sortColumn, isSortedDescending);
             }
 
             parent_group.children?.push(child_group);
@@ -96,7 +97,7 @@ export class Grid extends React.Component<IGridProps, IGridState> {
         const { selectedGroups } = this.props;
 
         if (selectedGroups![0]) {
-            //const groupedItems = this._buildGroupLevel_0();
+            sortColumn = sortColumn ? sortColumn : selectedGroups![0];
             const mustSortDescending = sortColumn && sortColumn === selectedGroups![0] ? isSortedDescending : columns.find(column => column.key === selectedGroups![0])?.isSortedDescending;
             const groupedItems = SortAndGroup(sortedItems, selectedGroups![0], mustSortDescending);
             groups = [];
@@ -104,18 +105,16 @@ export class Grid extends React.Component<IGridProps, IGridState> {
             groupedItems.forEach((child1, index) => {
                 const startIndex: number = index === 0 ? 0 : groupedItems![index - 1].startIndex + groupedItems![index - 1].size;
                 child1.startIndex = startIndex;
-    
+
                 const child_group: IGroup = { key: child1.key, name: child1.key, startIndex: startIndex, count: child1.size, level: 0, children: [] };
-    
+
                 if (selectedGroups![1]) {
-                    child1.children = this._buildGroupLevel(1, child_group, child1, sortColumn, isSortedDescending);
+                    child1.children = this._buildNestedGroup(1, child_group, child1, sortColumn, isSortedDescending);
                 }
-    
+
                 groups.push(child_group);
             });
-            console.log(groupedItems);
             sortedItems = this._flattenNestedItems(groupedItems);
-            console.log(sortedItems);
         } else {
             const mustSortDescending = sortColumn ? isSortedDescending : columns.find(column => column.key === selectedGroups![0])?.isSortedDescending;
             sortedItems = SortItems(sortedItems, sortColumn, mustSortDescending);
@@ -162,33 +161,17 @@ export class Grid extends React.Component<IGridProps, IGridState> {
 
         switch (column?.key) {
             case 'thumbnail':
-                return <Image src={fieldContent} width={50} height={50} imageFit={ImageFit.cover
-                } />;
-
+                return <Image src={fieldContent} width={50} height={50} imageFit={ImageFit.cover} />;
             case 'name':
                 return <Link href="#">{fieldContent}</Link>;
-
             case 'color':
-                return (
-                    <span
-                        data-selection-disabled={true}
-                    >
-                        {fieldContent}
-                    </span>
-                );
-
+                return (<span data-selection-disabled={true}>{fieldContent}</span>);
             default:
                 return <span>{fieldContent}</span >;
         }
     }
 
     private _onColumnClick(ev: React.MouseEvent<HTMLElement>, column: IColumn) {
-        let isSortedDescending = column.isSortedDescending;
-
-        if (column.isSorted) {
-            isSortedDescending = !isSortedDescending;
-        }
-
-        this._buildGroups(column.key, isSortedDescending);
+        this._buildGroups(column.key, !column.isSortedDescending);
     }
 }
