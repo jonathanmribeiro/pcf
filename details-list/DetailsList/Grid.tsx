@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DetailsList, buildColumns, IColumn, IGroup, Image, Link, ImageFit } from '@fluentui/react';
 import { IExampleItem, createListItems } from '@fluentui/example-data';
-import { IGrouped, SortAndGroup, SortItems } from './Utils/SortAndGroup';
+import { SortAndGroup, SortItems } from './Utils/SortAndGroup';
 
 export interface IGridState {
     sortedItems: IExampleItem[];
