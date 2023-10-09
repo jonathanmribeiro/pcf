@@ -29,6 +29,5 @@ export const SortAndGroup = (objectList: any[], property: string, isSortedDescen
 
 export const SortItems = (objectList: any[], property: string, isSortedDescending: boolean = false) => {
     return objectList
-        .map(item => item[property])
-        .sort((a, b) => ((isSortedDescending ? a < b : a > b) ? 1 : -1));
+        .sort((a, b) => ((isSortedDescending ? a[property] < b[property] : a[property] > b[property]) ? 1 : -1));
 }

@@ -65,32 +65,6 @@ export class Grid extends React.Component<IGridProps, IGridState> {
         return columns;
     }
 
-    private _buildNestedGroup(groupLevel: number, parent_group: IGroup, parentGroupedItems: IGrouped, sortColumn: string = '', isSortedDescending: boolean = false): any[] {
-        const { selectedGroups } = this.props;
-        const { columns } = this.state;
-
-        const groupKey = selectedGroups![groupLevel];
-        const nextGroupLevel = groupLevel + 1;
-
-        const mustSortDescending = sortColumn && sortColumn === groupKey ? isSortedDescending : columns.find(column => column.key === groupKey)?.isSortedDescending;
-        parentGroupedItems.children = SortAndGroup(parentGroupedItems.children!, groupKey, mustSortDescending);
-
-        parentGroupedItems.children!.forEach((child, index) => {
-            const startIndex: number = index === 0 ? parentGroupedItems.startIndex : parentGroupedItems.children![index - 1].startIndex + parentGroupedItems.children![index - 1].size;
-            child.startIndex = startIndex;
-
-            const child_group: IGroup = { key: child.key, name: child.key, startIndex: startIndex, count: child.size, level: groupLevel, children: [] };
-
-            if (selectedGroups![nextGroupLevel]) {
-                child.children = this._buildNestedGroup(nextGroupLevel, child_group, child, sortColumn, isSortedDescending);
-            }
-
-            parent_group.children?.push(child_group);
-        });
-
-        return parentGroupedItems.children;
-    }
-
     private _buildGroups(sortColumn: string = '', isSortedDescending: boolean = false) {
         const { columns } = this.state;
         let { groups, sortedItems } = this.state;
@@ -102,22 +76,21 @@ export class Grid extends React.Component<IGridProps, IGridState> {
             const groupedItems = SortAndGroup(sortedItems, selectedGroups![0], mustSortDescending);
             groups = [];
 
-            groupedItems.forEach((child1, index) => {
+            groupedItems.forEach((child, index) => {
                 const startIndex: number = index === 0 ? 0 : groupedItems![index - 1].startIndex + groupedItems![index - 1].size;
-                child1.startIndex = startIndex;
+                child.startIndex = startIndex;
 
-                const child_group: IGroup = { key: child1.key, name: child1.key, startIndex: startIndex, count: child1.size, level: 0, children: [] };
+                const child_group: IGroup = { key: child.key, name: child.key, startIndex: startIndex, count: child.size, level: 0, children: [] };
 
                 if (selectedGroups![1]) {
-                    child1.children = this._buildNestedGroup(1, child_group, child1, sortColumn, isSortedDescending);
+                    child.children = this._buildNestedGroup(1, child_group, child, sortColumn, isSortedDescending);
                 }
 
                 groups.push(child_group);
             });
             sortedItems = this._flattenNestedItems(groupedItems);
         } else {
-            const mustSortDescending = sortColumn ? isSortedDescending : columns.find(column => column.key === selectedGroups![0])?.isSortedDescending;
-            sortedItems = SortItems(sortedItems, sortColumn, mustSortDescending);
+            sortedItems = SortItems(sortedItems, sortColumn, isSortedDescending);
         }
 
 
@@ -135,6 +108,34 @@ export class Grid extends React.Component<IGridProps, IGridState> {
                     return col;
                 })
             });
+    }
+
+    private _buildNestedGroup(groupLevel: number, parent_group: IGroup, parentGroupedItems: IGrouped, sortColumn: string = '', isSortedDescending: boolean = false): any[] {
+        const { selectedGroups } = this.props;
+        const { columns } = this.state;
+
+        const groupKey = selectedGroups![groupLevel];
+        const nextGroupLevel = groupLevel + 1;
+
+        let mustSortDescending = sortColumn && sortColumn === groupKey ? isSortedDescending : columns.find(column => column.key === groupKey)?.isSortedDescending;
+        parentGroupedItems.children = SortAndGroup(parentGroupedItems.children!, groupKey, mustSortDescending);
+
+        parentGroupedItems.children!.forEach((child, index) => {
+            const startIndex: number = index === 0 ? parentGroupedItems.startIndex : parentGroupedItems.children![index - 1].startIndex + parentGroupedItems.children![index - 1].size;
+            child.startIndex = startIndex;
+
+            const child_group: IGroup = { key: child.key, name: child.key, startIndex: startIndex, count: child.size, level: groupLevel, children: [] };
+
+            if (selectedGroups![nextGroupLevel]) {
+                child.children = this._buildNestedGroup(nextGroupLevel, child_group, child, sortColumn, isSortedDescending);
+            } else {
+                child.children = SortItems(child.children!, sortColumn, isSortedDescending);
+            }
+
+            parent_group.children?.push(child_group);
+        });
+
+        return parentGroupedItems.children;
     }
 
     private _flattenNestedItems(groupedItems: any[]) {
